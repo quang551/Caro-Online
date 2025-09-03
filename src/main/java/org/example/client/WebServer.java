@@ -1,59 +1,35 @@
 package org.example.client;
 
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpExchange;
-
-import java.io.*;
-import java.net.InetSocketAddress;
-import java.nio.file.Files;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.example.server.CaroEndpoint;
 
 public class WebServer {
-    private static final int PORT = 8080;
+    public static void startServer() throws Exception {
+        Server server = new Server(8080);
 
-    public static void startServer() {
-        try {
-            HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
-            server.createContext("/", new StaticFileHandler());
-            server.setExecutor(null);
-            server.start();
-            System.out.println("Web UI chạy tại http://localhost:" + PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Tạo handler cho file tĩnh
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.setContextPath("/");
+        context.setResourceBase("src/main/java/web");  // chỗ này chứa index.html
+        context.addServlet(new ServletHolder(new DefaultServlet()), "/");
+
+        // Cấu hình WebSocket
+        JakartaWebSocketServletContainerInitializer.configure(context, (servletContext, wsContainer) -> {
+            wsContainer.addEndpoint(CaroEndpoint.class);
+        });
+
+        server.setHandler(context);
+        server.start();
+        System.out.println("Web UI chạy tại http://localhost:8080");
+        server.join();
     }
 
-    static class StaticFileHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String path = exchange.getRequestURI().getPath();
-            if (path.equals("/")) {
-                path = "/index.html";
-            }
-
-            File file = new File("src/main/resources/web" + path);
-            if (!file.exists()) {
-                String response = "404 Not Found";
-                exchange.sendResponseHeaders(404, response.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(response.getBytes());
-                }
-                return;
-            }
-
-            byte[] bytes = Files.readAllBytes(file.toPath());
-            exchange.getResponseHeaders().add("Content-Type", getContentType(path));
-            exchange.sendResponseHeaders(200, bytes.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(bytes);
-            }
-        }
-
-        private String getContentType(String path) {
-            if (path.endsWith(".html")) return "text/html";
-            if (path.endsWith(".css")) return "text/css";
-            if (path.endsWith(".js")) return "application/javascript";
-            return "application/octet-stream";
-        }
+    // ✅ Hàm main để chạy trực tiếp
+    public static void main(String[] args) throws Exception {
+        startServer();
     }
 }

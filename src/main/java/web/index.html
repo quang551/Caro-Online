@@ -2,20 +2,165 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caro Online</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #89f7fe, #66a6ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            text-align: center;
+            width: fit-content;
+        }
+
+        h2 {
+            margin: 0 0 15px;
+            color: #333;
+        }
+
+        #status {
+            margin: 10px 0 20px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        td {
+            width: 40px; height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ccc;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        td:hover {
+            background: #f0f8ff;
+        }
+
+        td.X { color: #e74c3c; }   /* đỏ cho X */
+        td.O { color: #2980b9; }   /* xanh cho O */
+
+        .footer {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-<div id="menu">
-    <h2>Caro Online</h2>
-    <input type="text" id="playerName" placeholder="Tên của bạn">
-    <button id="play">Vào bàn chơi</button>
+<div class="container">
+    <h2>🎮 Game Caro Online</h2>
+    <div id="status">Đang kết nối server...</div>
+    <table id="board"></table>
+    <div class="footer">Mở 2 tab để chơi cùng nhau</div>
 </div>
 
-<div id="status"></div>
-<div class="grid" id="grid"></div>
+<script>
+    const SIZE = 15;
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
 
-<script src="app.js"></script>
+    // Vẽ bàn cờ
+    for (let i = 0; i < SIZE; i++) {
+        const row = boardEl.insertRow();
+        for (let j = 0; j < SIZE; j++) {
+            const cell = row.insertCell();
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            cell.addEventListener("click", () => sendMove(i, j));
+        }
+    }
+
+    // Kết nối WebSocket
+    const socket = new WebSocket("ws://localhost:8080/ws/caro");
+
+    let myRole = null;
+    let currentPlayer = "X"; // lượt hiện tại
+
+    socket.onopen = () => {
+        console.log("✅ Đã kết nối server");
+        statusEl.textContent = "Đã kết nối server, chờ phân vai...";
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("📩 Nhận:", data);
+
+        if (data.type === "role") {
+            myRole = data.role;
+            statusEl.textContent = "Bạn là: " + myRole.toUpperCase();
+            if (myRole === "spectator") {
+                alert("👀 Bạn chỉ được xem vì đã có đủ 2 người chơi!");
+            }
+        }
+
+        if (data.type === "board") {
+            // cập nhật toàn bộ bàn cờ
+            data.data.forEach((row, i) => {
+                row.forEach((val, j) => {
+                    const cell = boardEl.rows[i].cells[j];
+                    cell.textContent = val;
+                    cell.className = val; // thêm class X hoặc O
+                });
+            });
+        }
+
+        if (data.type === "move") {
+            const cell = boardEl.rows[data.row].cells[data.col];
+            cell.textContent = data.player;
+            cell.className = data.player;
+            currentPlayer = data.player === "X" ? "O" : "X";
+            updateTurnStatus();
+        }
+
+        if (data.type === "win") {
+            alert("🎉 Người chơi " + data.player + " thắng!");
+            statusEl.textContent = "🏆 Người thắng: " + data.player;
+        }
+
+        if (data.type === "error") {
+            alert("⚠️ " + data.msg);
+        }
+    };
+
+    function sendMove(row, col) {
+        if (myRole === "spectator") {
+            alert("Bạn chỉ được xem, không thể đánh!");
+            return;
+        }
+        if (myRole !== currentPlayer) {
+            alert("⏳ Chưa đến lượt bạn!");
+            return;
+        }
+        socket.send(row + "," + col);
+    }
+
+    function updateTurnStatus() {
+        if (myRole === "spectator") {
+            statusEl.textContent = "👀 Đang theo dõi | Lượt: " + currentPlayer;
+        } else if (myRole === currentPlayer) {
+            statusEl.textContent = "👉 Đến lượt bạn (" + myRole + ")";
+        } else {
+            statusEl.textContent = "⏳ Chờ người chơi " + currentPlayer + " đi...";
+        }
+    }
+</script>
 </body>
 </html>

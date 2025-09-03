@@ -1,51 +1,93 @@
-const gridSize = 15;
-const gridElement = document.getElementById('grid');
-const statusEl = document.getElementById('status');
-const cells = [];
-let currentSymbol = 'X';
-let playerName = '';
+const boardSize = 15;
+const boardDiv = document.getElementById("board");
+const infoDiv = document.getElementById("info");
+
+let myRole = null;   // "X", "O", hoặc "spectator"
+let currentTurn = "X";
+let cells = [];
 
 // Tạo bàn cờ
-for (let i = 0; i < gridSize * gridSize; i++) {
-    const cell = document.createElement('div');
-    cell.classList.add('cell');
-    cell.addEventListener('click', () => handleCellClick(i));
-    gridElement.appendChild(cell);
-    cells.push(cell);
+function initBoard() {
+    boardDiv.innerHTML = "";
+    cells = [];
+    for (let i = 0; i < boardSize; i++) {
+        cells[i] = [];
+        for (let j = 0; j < boardSize; j++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.x = i;
+            cell.dataset.y = j;
+            cell.addEventListener("click", onCellClick);
+            boardDiv.appendChild(cell);
+            cells[i][j] = cell;
+        }
+    }
 }
 
-function handleCellClick(index) {
-    const move = { row: Math.floor(index / 15), col: index % 15 };
-    if (window.sendMove) window.sendMove(move);
-}
-
-// Nút bắt đầu chơi
-document.getElementById('play').addEventListener('click', () => {
-    playerName = document.getElementById('playerName').value.trim();
-    if (playerName === '') {
-        alert('Nhập tên trước khi chơi');
+function onCellClick(e) {
+    if (myRole === "spectator") {
+        alert("Bạn chỉ được xem, không thể đánh!");
         return;
     }
-    document.getElementById('menu').style.display = 'none';
-    gridElement.style.display = 'grid';
-    statusEl.style.display = 'block';
-    statusEl.textContent = `Lượt của ${currentSymbol}`;
-});
+    const x = e.target.dataset.x;
+    const y = e.target.dataset.y;
 
-// Hàm cập nhật bàn cờ từ server
-function updateBoard(row, col, symbol) {
-    const index = row * 15 + col;
-    cells[index].textContent = symbol;
-    cells[index].classList.add(symbol);
-    currentSymbol = symbol === 'X' ? 'O' : 'X';
-    statusEl.textContent = `Lượt của ${currentSymbol}`;
+    // Gửi move lên server
+    socket.send(JSON.stringify({ type: "move", x: parseInt(x), y: parseInt(y) }));
 }
 
-// Hàm hiển thị trạng thái từ server
-function updateStatus(text) {
-    statusEl.textContent = text;
-}
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
 
-// Cho phép Java client gọi
-window.updateBoard = updateBoard;
-window.updateStatus = updateStatus;
+    if (data.type === "role") {
+        alert("Bạn là người chơi: " + data.role);
+    }
+};
+// ================= WebSocket =================
+    const socket = new WebSocket("ws://localhost:8080/ws/caro");
+
+    socket.onopen = () => {
+        infoDiv.textContent = "Đã kết nối WebSocket!";
+    };
+
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        console.log("Server:", msg);
+
+        switch (msg.type) {
+            case "role":
+                myRole = msg.text;
+                currentTurn = msg.turn;
+                infoDiv.textContent = "Bạn là: " + myRole + " | Lượt hiện tại: " + currentTurn;
+                break;
+
+            case "move":
+                cells[msg.x][msg.y].textContent = msg.text; // X hoặc O
+                currentTurn = msg.turn;
+                infoDiv.textContent = "Bạn là: " + myRole + " | Lượt hiện tại: " + currentTurn;
+                break;
+
+            case "info":
+                infoDiv.textContent = msg.text + " | Lượt: " + msg.turn;
+                break;
+
+            case "error":
+                alert("❌ Lỗi: " + msg.text);
+                break;
+
+            case "win":
+                alert("🎉 Người thắng: " + msg.winner);
+                initBoard(); // reset lại bàn cờ
+                infoDiv.textContent = "Ván mới! Lượt: X";
+                break;
+        }
+    };
+
+    socket.onclose = () => {
+        infoDiv.textContent = "❌ Mất kết nối với server!";
+    };
+
+
+// Khởi tạo bàn cờ
+    initBoard();
+

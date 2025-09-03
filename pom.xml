@@ -25,16 +25,16 @@
             <name>JBoss Repository</name>
             <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
         </repository>
+
     </repositories>
 
     <dependencies>
-        <!-- WebSocket API -->
+        <!-- Jakarta WebSocket API -->
         <dependency>
             <groupId>jakarta.websocket</groupId>
             <artifactId>jakarta.websocket-api</artifactId>
             <version>2.1.1</version>
         </dependency>
-
         <!-- Tyrus Server Core -->
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
@@ -67,10 +67,36 @@
             <artifactId>websocket-jetty-server</artifactId>
             <version>11.0.20</version>
         </dependency>
+        <!-- WebSocket Jakarta Server (Jetty) -->
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-jakarta-server</artifactId>
             <version>11.0.20</version>
+        </dependency>  <!-- Đúng artifact -->
+        <!-- Jackson: JSON Parser -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+
+
+        <!-- Jakarta WebSocket API -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-api</artifactId>
+            <version>2.1.1</version>
         </dependency>
 
         <!-- Spark Java -->
