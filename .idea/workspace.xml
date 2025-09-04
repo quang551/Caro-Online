@@ -5,16 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a8f7b13-735a-4e8e-bbde-601f47336bfe" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/server/CaroEndpoint.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/client/ClientMain.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/client/ListenerThread.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/client/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/client/WebServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/client/WebUi.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/common/Message.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/common/Protocol.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/server/ClientHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/server/GameRoom.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/server/ServerMain.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/web/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/web/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/web/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +37,9 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="31slJ9qviaycPXbdvrlOwOHa9z6" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -90,7 +92,12 @@
       <workItem from="1756742737565" duration="1150000" />
       <workItem from="1756859721719" duration="1193000" />
       <workItem from="1756892298995" duration="3172000" />
-      <workItem from="1756896197295" duration="345000" />
+      <workItem from="1756896197295" duration="1436000" />
+      <workItem from="1756898834967" duration="383000" />
+      <workItem from="1756961892414" duration="1071000" />
+      <workItem from="1756979406435" duration="745000" />
+      <workItem from="1756981844773" duration="67000" />
+      <workItem from="1756983702885" duration="397000" />
     </task>
     <servers />
   </component>
